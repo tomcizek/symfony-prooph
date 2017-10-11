@@ -1,0 +1,9 @@
+prooph:
+    service_bus:
+        query_bus:
+            plugins:
+            router:
+                routes:
+
+services:
+    Prooph\Common\Messaging\FQCNMessageFactory:

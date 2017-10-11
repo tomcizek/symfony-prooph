@@ -1,0 +1,67 @@
+prooph:
+    event_sourcing:
+        aggregate_repository:
+            test_repository:
+                repository_class: 'TomCizek\SymfonyProoph\Tests\EventSourcing\FakeImplementations\MemoryTestRepository'
+                aggregate_type: 'TomCizek\SymfonyProoph\Tests\EventSourcing\FakeImplementations\TestAggregateRoot'
+                aggregate_translator: 'Prooph\EventSourcing\EventStoreIntegration\AggregateTranslator'
+                one_stream_per_aggregate: true
+    event_store:
+        default:
+            factory: 'Prooph\EventStore\Container\InMemoryEventStoreFactory'
+            plugins:
+                - 'Prooph\EventStoreBusBridge\EventPublisher'
+    projection_manager:
+        default:
+            factory: 'Prooph\EventStore\Pdo\Container\MySqlProjectionManagerFactory'
+            event_store: 'prooph.event_store'
+            connection: 'fakePDO' # service id for the used pdo connection
+            event_streams_table: 'event_streams' # event stream table to use, defaults to `event_streams`
+            projections_table: 'projections' # projection table to use, defaults to `projections`
+    service_bus:
+        command_bus:
+            plugins:
+                - 'Prooph\ServiceBus\Plugin\InvokeStrategy\HandleCommandStrategy'
+            router:
+                routes:
+        event_bus:
+            plugins:
+                - 'onEventStrategy'
+            router:
+                routes:
+                async_switch: 'prooph.asynchronous_messaging.events'
+        query_bus:
+            plugins:
+            router:
+                routes:
+    asynchronous_messaging:
+        events:
+            bridge: 'producerBridge'
+            routes:
+                'TomCizek\SymfonyProoph\Tests\EventSourcing\FakeImplementations\TestAggregateCreated': producerRouteKey
+        commands:
+            bridge: 'TomCizek\SymfonyProoph\Tests\ServiceBus\AsynchronousMessages\FakeImplementations\TestAsynchronousMessageProducerBridge'
+
+services:
+
+    _defaults:
+        autowire: true
+
+    onEventStrategy:
+        class: Prooph\ServiceBus\Plugin\InvokeStrategy\OnEventStrategy
+    Prooph\ServiceBus\Plugin\InvokeStrategy\HandleCommandStrategy:
+    Prooph\EventStoreBusBridge\EventPublisher:
+
+    Prooph\EventSourcing\EventStoreIntegration\AggregateTranslator:
+    Prooph\Common\Messaging\FQCNMessageFactory:
+
+    producerBridge:
+        class: TomCizek\SymfonyProoph\Tests\AsynchronousMessages\FakeImplementations\TestAsynchronousMessageProducerBridge
+    TomCizek\SymfonyProoph\Tests\AsynchronousMessages\FakeImplementations\TestAsynchronousMessageProducerBridge:
+        alias: producerBridge
+
+    Prooph\Common\Messaging\NoOpMessageConverter:
+    Prooph\Common\Messaging\MessageConverter:
+        alias: Prooph\Common\Messaging\NoOpMessageConverter
+
+

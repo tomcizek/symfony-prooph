@@ -1,0 +1,6 @@
+prooph:
+    event_store:
+        default:
+            plugins: []
+services:
+    Prooph\Common\Messaging\FQCNMessageFactory:

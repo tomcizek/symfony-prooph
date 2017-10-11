@@ -1,0 +1,24 @@
+language: php
+
+cache:
+  directories:
+    - $HOME/.composer/cache
+
+php:
+  - 7.1
+  - 7.2
+
+before_script:
+  - composer self-update
+  - composer install
+
+script:
+  - mkdir temp
+  - vendor/bin/phpstan analyse --level=max --configuration=phpstan.neon src tests
+  - vendor/bin/phpunit --configuration tests/phpunit.xml tests
+
+after_script:
+  # upload clover.xml file to Scrutinizer to analyze it
+  - |
+    wget https://scrutinizer-ci.com/ocular.phar
+    php ocular.phar code-coverage:upload --format=php-clover tests/temp/clover.xml

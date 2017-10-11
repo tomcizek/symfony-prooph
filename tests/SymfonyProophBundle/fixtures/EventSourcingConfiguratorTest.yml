@@ -1,0 +1,17 @@
+prooph:
+    event_sourcing:
+        aggregate_repository:
+            test_repository:
+                repository_class: TomCizek\SymfonyProoph\Tests\EventSourcing\FakeImplementations\MemoryTestRepository
+                aggregate_type: TomCizek\SymfonyProoph\Tests\EventSourcing\FakeImplementations\TestAggregateRoot
+                aggregate_translator: Prooph\EventSourcing\EventStoreIntegration\AggregateTranslator
+                one_stream_per_aggregate: true
+
+    event_store:
+        default:
+            factory: Prooph\EventStore\Container\InMemoryEventStoreFactory
+            plugins: []
+
+services:
+    Prooph\EventSourcing\EventStoreIntegration\AggregateTranslator:
+    Prooph\Common\Messaging\FQCNMessageFactory:

@@ -1,0 +1,14 @@
+prooph:
+    asynchronous_messaging:
+        commands:
+            bridge: 'producerBridge'
+            routes:
+                MessageName: producerRouteKey
+
+services:
+    'producerBridge':
+        class: 'TomCizek\SymfonyProoph\Tests\AsynchronousMessages\FakeImplementations\TestAsynchronousMessageProducerBridge'
+    messageConverter:
+        class: Prooph\Common\Messaging\NoOpMessageConverter
+    Prooph\Common\Messaging\MessageConverter:
+        alias: messageConverter
