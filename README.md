@@ -11,7 +11,7 @@ Symfony Bundle extension for <a href="https://github.com/prooph">prooph</a> tool
 	<li>
 		It allows you to 
 		<a href="https://github.com/tomcizek/symfony-prooph/blob/master/docs/Configuration.md">
-			configure prooph libraries through Symfony *.yml config
+			configure prooph libraries through Symfony *.yml config with same array structure as prooph interop factories have.
 		</a>
 	</li>
 	<li>
@@ -26,12 +26,22 @@ Symfony Bundle extension for <a href="https://github.com/prooph">prooph</a> tool
 	New to Prooph, DDD, CQRS or Event Sourcing? Hunting for inspiration and learning sources?
 </a>
 
+## Pros and cons
+### Cons
+- It uses interop factories, so services are created runtime, not compile time
+- It includes all major prooph components, so you might have vendor packages you might not be using (will be solved in future)
+- Still not fully tested in real production
+
+### Pros
+- It uses interop factories, so it does not mimicating prooph interop factories, thus 1] has all prooph default config features and 2] structure will never be out of date.
+- It includes all major prooph components, so it's easy to use when you want to use all major parts of prooph toolbox (I know that's alibistic).
+
 # Quick start
 
 ### 1) Install this library through composer
 `composer require tomcizek/symfony-prooph`
 
-### 2) Register these Bundles in your kernel (app/AppKernel.php)
+### 2) Register these Bundles in your kernel (individually, but might be app/AppKernel.php)
 ```php
 public function registerBundles()
 {
