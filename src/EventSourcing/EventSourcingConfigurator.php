@@ -34,16 +34,59 @@ class EventSourcingConfigurator extends DefaultConfigurator
 		foreach ($repositoriesConfigs as $repositoryConfigName => $repositoryConfig) {
 			$repositoryClass = $repositoryConfig[self::KEY_REPOSITORY_CLASS];
 
-			$repositoryDefinition = new Definition($repositoryClass);
-			$repositoryDefinition
-				->setClass($repositoryClass)
-				->setFactory(AggregateRepositoryFactory::class . '::' . $repositoryConfigName)
-				->addArgument(
-					new Reference($interopContainerServiceId)
-				);
-
-			$this->containerBuilder->setDefinition('prooph.' . $repositoryConfigName, $repositoryDefinition);
-			$this->containerBuilder->setAlias($repositoryClass, 'prooph.' . $repositoryConfigName);
+			$this->setRepositoryDefinition($repositoryClass, $repositoryConfigName, $interopContainerServiceId);
+			$this->setBasicAlias($repositoryClass, $repositoryConfigName);
+			$this->setAliasesFromRepositoryImplementations($repositoryClass, $repositoryConfigName);
 		}
+	}
+
+	private function setRepositoryDefinition(
+		string $repositoryClass,
+		string $repositoryConfigName,
+		string $interopContainerServiceId
+	): void {
+		$repositoryDefinition = new Definition($repositoryClass);
+		$repositoryDefinition
+			->setClass($repositoryClass)
+			->setFactory(AggregateRepositoryFactory::class . '::' . $repositoryConfigName)
+			->addArgument(
+				new Reference($interopContainerServiceId)
+			);
+
+		$this->containerBuilder->setDefinition(
+			$this->getRepositoryServiceId($repositoryConfigName),
+			$repositoryDefinition
+		);
+	}
+
+	private function setAliasesFromRepositoryImplementations(
+		string $repositoryClass,
+		string $repositoryConfigName
+	): void {
+		$implementations = class_implements($repositoryClass);
+		foreach ($implementations as $implementation) {
+			$this->containerBuilder->setAlias(
+				$implementation,
+				$this->getRepositoryServiceId($repositoryConfigName)
+			);
+		}
+	}
+
+	private function setBasicAlias(string $repositoryClass, string $repositoryConfigName): void
+	{
+		$this->containerBuilder->setAlias(
+			$repositoryClass,
+			$this->getRepositoryServiceId($repositoryConfigName)
+		);
+	}
+
+	private function getRepositoryPrefix(): string
+	{
+		return 'prooph.' . self::KEY . '.';
+	}
+
+	private function getRepositoryServiceId(string $repositoryConfigName): string
+	{
+		return $this->getRepositoryPrefix() . $repositoryConfigName;
 	}
 }

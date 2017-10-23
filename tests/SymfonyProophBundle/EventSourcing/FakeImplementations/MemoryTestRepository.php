@@ -6,7 +6,7 @@ use Prooph\EventSourcing\Aggregate\AggregateRepository;
 use Prooph\EventStore\TransactionalActionEventEmitterEventStore;
 use Ramsey\Uuid\UuidInterface;
 
-class MemoryTestRepository extends AggregateRepository
+class MemoryTestRepository extends AggregateRepository implements MemoryTestRepositoryInterface
 {
 	/**
 	 * @var TransactionalActionEventEmitterEventStore
