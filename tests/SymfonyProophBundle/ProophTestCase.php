@@ -3,8 +3,8 @@
 namespace TomCizek\SymfonyProoph\Tests\Configurators;
 
 use PHPUnit\Framework\TestCase;
+use Prooph\InteropBundle\ProophInteropBundle;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use TomCizek\SymfonyInteropContainer\SymfonyInteropContainerBundle;
 use TomCizek\SymfonyInteropContainer\Tests\Configurators\ConfigFile;
 use TomCizek\SymfonyProoph\ProophBundle;
 use TomCizek\SymfonyProoph\Tests\TestKernel;
@@ -58,7 +58,7 @@ abstract class ProophTestCase extends TestCase
 	): TestKernel {
 		$kernel = $this->bootKernelWith(
 			[
-				SymfonyInteropContainerBundle::class,
+				ProophInteropBundle::class,
 				ProophBundle::class,
 			],
 			[
