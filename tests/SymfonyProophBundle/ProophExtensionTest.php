@@ -2,7 +2,7 @@
 
 namespace TomCizek\SymfonyProoph\Tests;
 
-use TomCizek\SymfonyInteropContainer\SymfonyInteropContainerBundle;
+use Prooph\InteropBundle\ProophInteropBundle;
 use TomCizek\SymfonyInteropContainer\Tests\Configurators\ConfigFile;
 use TomCizek\SymfonyProoph\ProophBundle;
 use TomCizek\SymfonyProoph\Tests\Configurators\ProophTestCase;
@@ -20,7 +20,7 @@ class ProophExtensionTest extends ProophTestCase
 	{
 		$this->bootKernelWith(
 			[
-				SymfonyInteropContainerBundle::class,
+				ProophInteropBundle::class,
 				ProophBundle::class,
 			],
 			[

@@ -47,7 +47,7 @@ public function registerBundles()
 {
     $bundles = [
         // Other bundles...
-        new TomCizek\SymfonyInteropContainer\SymfonyInteropContainerBundle()
+        new Prooph\InteropBundle\ProophInteropBundle(),
         new TomCizek\SymfonyProoph\ProophBundle(),
     ];
 }

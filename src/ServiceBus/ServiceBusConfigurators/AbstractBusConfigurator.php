@@ -38,6 +38,7 @@ abstract class AbstractBusConfigurator extends DefaultConfigurator
 		$factory = $this->getBusFactoryClass();
 
 		$serviceBusDefinition = new Definition($this->getBusClass());
+
 		$serviceBusDefinition
 			->setFactory($factory . '::' . $this->getConfigKey())
 			->addArgument(

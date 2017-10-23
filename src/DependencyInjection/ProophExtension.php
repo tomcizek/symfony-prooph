@@ -3,17 +3,21 @@
 namespace TomCizek\SymfonyProoph\DependencyInjection;
 
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use TomCizek\SymfonyInteropContainer\AbstractInteropExtension;
+use Symfony\Component\DependencyInjection\Extension\Extension;
+use TomCizek\SymfonyProoph\Common\ConfigArrayBuilder;
 use TomCizek\SymfonyProoph\ProophExtensionConfigurator;
 
-class ProophExtension extends AbstractInteropExtension
+class ProophExtension extends Extension
 {
 	/** @var array */
 	public $defaults = [];
 
+	/** @var ConfigArrayBuilder */
+	protected $configBuilder;
+
 	public function load(array $configs, ContainerBuilder $containerBuilder): void
 	{
-		parent::load($configs, $containerBuilder);
+		$this->configBuilder = ConfigArrayBuilder::fromConfigs($configs);
 
 		$extensionConfigurator = new ProophExtensionConfigurator($containerBuilder);
 
