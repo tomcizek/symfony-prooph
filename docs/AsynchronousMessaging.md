@@ -42,18 +42,10 @@ prooph:
 </p>
 
 <p>
-    But to make it work, you need to have registered two services:
+    To make it work, you need to have registered your implementation of 
+    `TomCizek\SymfonyProoph\AsynchronousMessages\AsynchronousMessageProducerBridge` 
+    with ID you provided in asynchronous_messaging config (you can have it type based).
 </p>
-<ol>
-    <li>
-        Your implementation of `TomCizek\SymfonyProoph\AsynchronousMessages\AsynchronousMessageProducerBridge` 
-        with ID you provided in asynchronous_messaging config (you can have it type based).
-    </li>
-    <li>
-        Some `Prooph\Common\Messaging\MessageConverter` implementation - it is strategy of how 
-        your Message will be converted to array.
-        There is default NoOpMessageConverter or you can implement your own. ;)
-    </li>
 </ol>
 
 For example:
@@ -62,10 +54,6 @@ For example:
 services:
     producerBridge: 
         class: TomCizek\SymfonyProoph\Tests\AsynchronousMessages\FakeImplementations\TestAsynchronousMessageProducerBridge
-
-    Prooph\Common\Messaging\NoOpMessageConverter:
-    Prooph\Common\Messaging\MessageConverter:
-        alias: Prooph\Common\Messaging\NoOpMessageConverter
 ```
 
 <br>
@@ -97,10 +85,6 @@ prooph:
 services:
     producerBridge: 
         class: TomCizek\SymfonyProoph\Tests\AsynchronousMessages\FakeImplementations\TestAsynchronousMessageProducerBridge
-
-    Prooph\Common\Messaging\NoOpMessageConverter:
-    Prooph\Common\Messaging\MessageConverter:
-        alias: Prooph\Common\Messaging\NoOpMessageConverter
         
     Prooph\Common\Messaging\FQCNMessageFactory:
 ```
@@ -130,7 +114,7 @@ namespace TomCizek\SymfonyProoph\AsynchronousMessages;
 interface AsynchronousMessageProducerBridge
 {
 
-    public function publishWithRoutingKey($routingKey, $data): void;
+    public function publishWithRoutingKey(Message $message, string $routingKey): void;
 }
 ```
 
@@ -144,24 +128,43 @@ interface AsynchronousMessageProducerBridge
 
 namespace Example\Infrastructure;
 
+use DateTime;
+use OldSound\RabbitMqBundle\RabbitMq\Producer;
+use Prooph\Common\Messaging\Message;
+use Prooph\Common\Messaging\MessageConverter;
+use Prooph\Common\Messaging\MessageDataAssertion;
 use TomCizek\SymfonyProoph\AsynchronousMessages\AsynchronousMessageProducerBridge;
 
 class AsynchronousMessageProducer implements AsynchronousMessageProducerBridge
 {
 
-    /* @var RabbitConnectionFacade */
-    private $rabbit;
+	/** @var Producer */
+	private $producer;
 
-    public function __construct(Connection $rabbit)
-    {
-        $this->rabbit = $rabbit;
-    }
+	/** @var MessageConverter */
+	private $messageConverter;
 
-    public function publishWithRoutingKey($producerName, $data): void
-    {
-        $jsonData = json_encode($data);
-        $this->rabbit->getProducer($producerName)->publish($jsonData, $producerName);
-    }
+	public function __construct(Producer $producer, MessageConverter $messageConverter)
+	{
+		$this->producer = $producer;
+		$this->messageConverter = $messageConverter;
+	}
+	
+	public function publishWithRoutingKey(Message $message, string $routingKey): void
+	{
+		// converting message to string is something you implement yourself however you need
+		$stringMessage = $this->convertMessageToString($mesage);
+		$this->producer->publish($stringMessage, $routingKey);
+	}
+
+	private function convertMessageToString(Message $message): string
+	{
+		$messageData = $this->messageConverter->convertToArray($message);
+		MessageDataAssertion::assert($messageData);
+		$messageData['created_at'] = $message->createdAt()->format(DateTime::ATOM);
+
+		return json_encode($messageData);
+	}
 }
 
 ```

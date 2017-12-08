@@ -2,6 +2,7 @@
 
 namespace TomCizek\SymfonyProoph\Tests\AsynchronousMessages;
 
+use Prooph\Common\Messaging\Message;
 use TomCizek\SymfonyProoph\Tests\AsynchronousMessages\FakeImplementations\TestAsynchronousMessageProducerBridge;
 use TomCizek\SymfonyProoph\Tests\Configurators\ProophTestCase;
 use TomCizek\SymfonyProoph\Tests\EventSourcing\FakeImplementations\TestAggregateCreated;
@@ -14,10 +15,11 @@ abstract class AbstractAsynchronousMessagesTestCase extends ProophTestCase
 
 		self::assertCount(1, $publishedMessagesDump);
 		$publishedProducerRouteKey = $publishedMessagesDump[0][TestAsynchronousMessageProducerBridge::KEY_ROUTING_KEY];
-		$publishedMessageData = $publishedMessagesDump[0][TestAsynchronousMessageProducerBridge::KEY_DATA];
+		/** @var Message $publishedMessage */
+		$publishedMessage = $publishedMessagesDump[0][TestAsynchronousMessageProducerBridge::KEY_MESSAGE];
 		self::assertEquals($publishedProducerRouteKey, $expectedProducerRouteKey);
-		self::assertEquals($publishedMessageData['message_name'], TestAggregateCreated::class);
-		self::assertEquals($publishedMessageData['payload'], TestAggregateCreated::TEST_PAYLOAD);
+		self::assertEquals($publishedMessage->messageName(), TestAggregateCreated::class);
+		self::assertEquals($publishedMessage->payload(), TestAggregateCreated::TEST_PAYLOAD);
 	}
 
 	abstract protected function getPublishedEventsFromTestBridge(): array;

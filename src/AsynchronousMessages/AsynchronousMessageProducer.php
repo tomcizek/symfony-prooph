@@ -4,7 +4,6 @@ namespace TomCizek\SymfonyProoph\AsynchronousMessages;
 
 use Prooph\Common\Messaging\Message;
 use Prooph\Common\Messaging\MessageConverter;
-use Prooph\Common\Messaging\MessageDataAssertion;
 use Prooph\ServiceBus\Async\MessageProducer;
 use Prooph\ServiceBus\Exception\RuntimeException;
 use React\Promise\Deferred;
@@ -36,23 +35,13 @@ class AsynchronousMessageProducer implements MessageProducer
 		if ($deferred !== null) {
 			throw new RuntimeException(__CLASS__ . ' cannot handle query messages which require future responses.');
 		}
-		$data = $this->arrayFromMessage($message);
 
-		$producerName = $this->getProducerRouteKey($message);
+		$routingKey = $this->getRoutingKeyFromMessageRoute($message);
 
-		$this->producerBridge->publishWithRoutingKey($producerName, $data);
+		$this->producerBridge->publishWithRoutingKey($message, $routingKey);
 	}
 
-	private function arrayFromMessage(Message $message): array
-	{
-		$messageData = $this->messageConverter->convertToArray($message);
-		MessageDataAssertion::assert($messageData);
-		$messageData['created_at'] = $message->createdAt()->format('Y-m-d\TH:i:s.u');
-
-		return $messageData;
-	}
-
-	private function getProducerRouteKey(Message $message): string
+	private function getRoutingKeyFromMessageRoute(Message $message): string
 	{
 		if (empty($this->routes[$message->messageName()])) {
 			throw new RuntimeException(
